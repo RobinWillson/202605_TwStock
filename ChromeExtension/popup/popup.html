@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TwStock Chrome Extension</title>
+
+  <!-- Local Tailwind CSS + DaisyUI via libs -->
+  <script src="/libs/taiwindcss/browser@4.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#3b82f6',
+          }
+        }
+      },
+      plugins: [window.daisyui],
+    };
+  </script>
+  <link rel="stylesheet" href="/libs/daisyui/daisyui_5.css" />
+
+  <!-- Local jQuery -->
+  <script src="/libs/jquery/jquery-1.11.1.min.js"></script>
+
+  <!-- Local HoldOn loader utility -->
+  <link rel="stylesheet" href="/libs/HoldOn/HoldOn.min.css" />
+  <script src="/libs/HoldOn/HoldOn.min.js"></script>
+
+  <!-- Main script logic -->
+  <script type="module" src="popup.js"></script>
+
+  <style>
+    html,
+    body {
+      min-width: 320px;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans antialiased p-2">
+  <!-- Header -->
+  <div class="flex items-center gap-2 pb-2 mb-2 border-b border-slate-200">
+    <div class="p-1.5 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-lg text-white shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+      </svg>
+    </div>
+    <div>
+      <h1 class="text-base font-bold text-slate-900 leading-tight">TwStock Portal</h1>
+      <p class="text-[9px] text-slate-500 font-semibold tracking-wide uppercase">Multi-Project Stock Tool</p>
+    </div>
+  </div>
+
+  <!-- Unified Accordion Container -->
+  <div class="flex flex-col gap-1.5">
+    <!-- Project 1: TradeHistory -->
+    <div
+      class="collapse collapse-arrow bg-white border border-slate-200/80 rounded-xl shadow-sm transition-all duration-300 hover:shadow">
+      <input type="checkbox" class="accordion-toggle" />
+      <div class="collapse-title text-sm font-semibold text-slate-700 flex items-center gap-2">
+        <span>📈</span> TradeHistory
+      </div>
+      <div class="collapse-content text-xs text-slate-600">
+        <div class="flex flex-col gap-2.5 pt-1 border-t border-slate-100">
+          <p class="text-[11px] text-slate-500">Extracts and syncs historical transaction logs from the active page.</p>
+          <div class="flex gap-2">
+            <button id="btn-fetch-history"
+              class="flex-1 btn btn-xs btn-outline btn-primary transition-transform duration-100 active:scale-95">Fetch
+              History</button>
+            <button id="btn-save-history"
+              class="flex-1 btn btn-xs btn-primary transition-transform duration-100 active:scale-95">Save
+              History</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project 2: BasicData -->
+    <div
+      class="collapse collapse-arrow bg-white border border-slate-200/80 rounded-xl shadow-sm transition-all duration-300 hover:shadow">
+      <input type="checkbox" class="accordion-toggle" />
+      <div class="collapse-title text-sm font-semibold text-slate-700 flex items-center gap-2">
+        <span>📊</span> BasicData
+      </div>
+      <div class="collapse-content text-xs text-slate-600">
+        <div class="flex flex-col gap-2.5 pt-1 border-t border-slate-100">
+          <p class="text-[11px] text-slate-500">Retrieves fundamental company profile and basic metadata.</p>
+          <div class="flex gap-2">
+            <button id="btn-fetch-basic"
+              class="flex-1 btn btn-xs btn-outline btn-secondary transition-transform duration-100 active:scale-95">Fetch
+              Basic</button>
+            <button id="btn-save-basic"
+              class="flex-1 btn btn-xs btn-secondary transition-transform duration-100 active:scale-95">Save
+              Basic</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project 3: DailyData -->
+    <div
+      class="collapse collapse-arrow bg-white border border-slate-200/80 rounded-xl shadow-sm transition-all duration-300 hover:shadow">
+      <input type="checkbox" class="accordion-toggle" />
+      <div class="collapse-title text-sm font-semibold text-slate-700 flex items-center gap-2">
+        <span>📅</span> DailyData
+      </div>
+      <div class="collapse-content text-xs text-slate-600">
+        <div class="flex flex-col gap-2.5 pt-1 border-t border-slate-100">
+          <p class="text-[11px] text-slate-500">Collects daily price charts and trade summaries.</p>
+          <div class="flex gap-2">
+            <button id="btn-fetch-daily"
+              class="flex-1 btn btn-xs btn-outline btn-accent transition-transform duration-100 active:scale-95">Fetch
+              Daily</button>
+            <button id="btn-save-daily"
+              class="flex-1 btn btn-xs btn-accent transition-transform duration-100 active:scale-95">Save Daily</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages Alert Panel -->
+  <div id="statusMsgPanel" class="mt-3 hidden transition-all duration-200">
+    <div class="alert alert-info rounded-xl p-2.5 flex items-start gap-2 shadow-inner">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+        class="h-4 w-4 shrink-0 stroke-current text-blue-600 mt-0.5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span id="statusMsg" class="text-[11px] font-medium text-slate-700 break-all leading-normal"></span>
+    </div>
+  </div>
+</body>
+
+</html>

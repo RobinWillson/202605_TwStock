@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "TwStock Chrome Extension",
+  "version": "1.0.0",
+  "description": "Extensible financial data and transaction history tool.",
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "icons": {
+    "16": "icons/stock-16.png",
+    "32": "icons/stock-32.png"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ]
+}
