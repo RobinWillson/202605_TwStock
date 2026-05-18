@@ -27,14 +27,11 @@ function setupAccordionBehavior() {
 
 function addEventListeners() {
   // Project 1: TradeHistory
-  document.getElementById('btn-fetch-history').addEventListener('click', (e) => {
+  document.getElementById('btn-fetch-HN-history').addEventListener('click', (e) => {
     e.stopPropagation();
-    handleScriptExecution("project_1", "Fetch History");
+    handleScriptExecution("02_TradeHistory", "Fetch HN History");
   });
-  document.getElementById('btn-save-history').addEventListener('click', (e) => {
-    e.stopPropagation();
-    handleScriptExecution("project_1", "Save History");
-  });
+
 
   // Project 2: BasicData
   document.getElementById('btn-fetch-basic').addEventListener('click', (e) => {
@@ -64,7 +61,7 @@ function addEventListeners() {
  */
 async function handleScriptExecution(projectId, actionName) {
   displayStatus(`Triggering ${actionName}...`);
-  
+
   // Show premium loading spinner
   if (window.HoldOn) {
     HoldOn.open({
@@ -78,22 +75,32 @@ async function handleScriptExecution(projectId, actionName) {
   try {
     // 1. Get the current active tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
+
     if (!tab) {
       throw new Error("No active tab found.");
     }
 
     console.log(`Executing /background/${projectId}/background.js on tab: ${tab.id}`);
 
-    // 2. Inject script
+    // Store action in local storage for background script to read
+    await chrome.storage.local.set({ currentAction: actionName });
+
+    // 2. Build files to inject (safely resolve local credentials)
+    const filesToInject = [];
+    if (projectId === "02_TradeHistory") {
+      filesToInject.push(`/background/${projectId}/config.js`);
+    }
+    filesToInject.push(`/background/${projectId}/background.js`);
+
+    // 3. Inject scripts
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      files: [`/background/${projectId}/background.js`]
+      files: filesToInject
     });
 
     // Simulate completion delay for loading display feel
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     displayStatus(`Successfully executed ${actionName}!`);
   } catch (error) {
     console.error("Execution error: ", error);
@@ -112,7 +119,7 @@ async function handleScriptExecution(projectId, actionName) {
 function displayStatus(msg) {
   const panel = document.getElementById('statusMsgPanel');
   const textEl = document.getElementById('statusMsg');
-  
+
   if (panel && textEl) {
     textEl.textContent = msg;
     panel.classList.remove('hidden');
